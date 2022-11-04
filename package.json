@@ -20,7 +20,7 @@
   "scripts": {
     "prebuild": "rimraf ./lib/* ./bin/*",
     "build": "tsc -p tsconfig.lib.json && tsc -p tsconfig.bin.json && rollup -c && rimraf ./bin/modules",
-    "prepublishOnly": "yarn lint && yarn build",
+    "prepare": "yarn lint && yarn build",
     "lint": "tslint --project tsconfig.lib.json && tslint --project tsconfig.bin.json",
     "semantic-release": "semantic-release"
   },

@@ -74,6 +74,17 @@ RCT_EXPORT_METHOD(login: (NSArray *) scope resolver: (RCTPromiseResolveBlock) re
   self->loginRejector = reject;
   [VKSdk wakeUpSession:scope completeBlock:^(VKAuthorizationState state, NSError *error) {
     switch (state) {
+      case VKAuthorizationUnknown: {
+        RCTLogInfo(@"Something went wrong with authorization");
+        if ([VKSdk accessToken]) {
+          RCTLogInfo(@"Need to authorize again");
+          [VKSdk forceLogout];
+          [VKSdk authorize:scope];
+        } else {
+          [self rejectLoginWithError:error];
+        }
+        break;
+      }
       case VKAuthorizationAuthorized: {
         RCTLogInfo(@"User already authorized");
         NSDictionary *loginData = [self serializeAccessToken];
