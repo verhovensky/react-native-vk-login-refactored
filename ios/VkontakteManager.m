@@ -1,5 +1,6 @@
 #import "VkontakteManager.h"
 #import "RNVkontakteLoginUtils.h"
+#import <React/RCTLog.h>
 
 #if __has_include(<VKSdkFramework/VKSdkFramework.h>)
 #import <VKSdkFramework/VKSdkFramework.h>
@@ -40,7 +41,7 @@ NSString *const E_VK_REQUEST_NOT_PREPARED = @"E_VK_REQUEST_NOT_PREPARED";
   if (self = [super init]) {
     NSNumber *appId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"VK_APP_ID"];
     if (appId){
-      DMLog(@"Found appId %@ on startup", appId);
+      RCTLogInfo(@"Found appId %@ on startup", appId);
       [self initialize:appId];
     }
   }
@@ -54,7 +55,7 @@ RCT_EXPORT_MODULE();
 }
 
 RCT_EXPORT_METHOD(initialize: (nonnull NSNumber *) appId) {
-  DMLog(@"Initialize app id %@", appId);
+  RCTLogInfo(@"Initialize app id %@", appId);
 
   sdk = [VKSdk initializeWithAppId:[NSString stringWithFormat:@"%@", appId]];
   [sdk registerDelegate:self];
@@ -63,7 +64,7 @@ RCT_EXPORT_METHOD(initialize: (nonnull NSNumber *) appId) {
 }
 
 RCT_EXPORT_METHOD(login: (NSArray *) scope resolver: (RCTPromiseResolveBlock) resolve rejecter: (RCTPromiseRejectBlock) reject) {
-  DMLog(@"Login with scope %@", scope);
+  RCTLogInfo(@"Login with scope %@", scope);
   if (![VKSdk initialized]){
     reject(E_NOT_INITIALIZED, @"VK SDK must be initialized first", nil);
     return;
@@ -74,19 +75,19 @@ RCT_EXPORT_METHOD(login: (NSArray *) scope resolver: (RCTPromiseResolveBlock) re
   [VKSdk wakeUpSession:scope completeBlock:^(VKAuthorizationState state, NSError *error) {
     switch (state) {
       case VKAuthorizationAuthorized: {
-        DMLog(@"User already authorized");
+        RCTLogInfo(@"User already authorized");
         NSDictionary *loginData = [self serializeAccessToken];
         self->loginResolver(loginData);
         break;
       }
       case VKAuthorizationInitialized: {
-        DMLog(@"Authorization required");
+        RCTLogInfo(@"Authorization required");
         [VKSdk authorize:scope];
         break;
       }
       case VKAuthorizationError: {
         NSString *errMessage = [NSString stringWithFormat:@"VK Authorization error: %@", [error localizedDescription]];
-        DMLog(errMessage);
+        RCTLogInfo(errMessage);
         [self rejectLoginWithError:error];
       }
     }
@@ -108,7 +109,7 @@ RCT_EXPORT_METHOD(getAccessToken: (RCTPromiseResolveBlock) resolve rejecter: (RC
 }
 
 RCT_REMAP_METHOD(logout, resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject){
-  DMLog(@"Logout");
+  RCTLogInfo(@"Logout");
   if (![VKSdk initialized]){
     reject(E_NOT_INITIALIZED, @"VK SDK must be initialized first", nil);
     return;
@@ -118,9 +119,9 @@ RCT_REMAP_METHOD(logout, resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
 };
 
 - (void)vkSdkAccessAuthorizationFinishedWithResult:(VKAuthorizationResult *)result {
-  DMLog(@"Authorization result is %@", result);
+  RCTLogInfo(@"Authorization result is %@", result);
   if (result.error && self->loginRejector != nil) {
-    DMLog(@"Authrization failed with code %ld and message %ld", (long)result.error.code, (long)result.error.vkError.errorCode);
+    RCTLogInfo(@"Authrization failed with code %ld and message %ld", (long)result.error.code, (long)result.error.vkError.errorCode);
     [self rejectLoginWithError:result.error];
   } else if (result.token && self->loginResolver != nil) {
     NSDictionary *loginData = [self serializeAccessToken];
@@ -129,12 +130,12 @@ RCT_REMAP_METHOD(logout, resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
 }
 
 - (void)vkSdkUserAuthorizationFailed:(VKError *)error {
-  DMLog(@"Authrization failed with code %ld and message %@", (long)error.errorCode, error.errorMessage);
+  RCTLogInfo(@"Authrization failed with code %ld and message %@", (long)error.errorCode, error.errorMessage);
   [self rejectLoginWithVKError:error];
 }
 
 - (void)vkSdkNeedCaptchaEnter:(VKError *)captchaError {
-  DMLog(@"VK SDK UI Delegate needs captcha: %@", captchaError);
+  RCTLogInfo(@"VK SDK UI Delegate needs captcha: %@", captchaError);
   VKCaptchaViewController *vc = [VKCaptchaViewController captchaControllerWithError:captchaError];
 
   UIViewController *root = [RNVkontakteLoginUtils topMostViewController];
@@ -143,7 +144,7 @@ RCT_REMAP_METHOD(logout, resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
 }
 
 - (void)vkSdkShouldPresentViewController:(UIViewController *)controller {
-  DMLog(@"Presenting view controller");
+  RCTLogInfo(@"Presenting view controller");
   UIViewController *root = [RNVkontakteLoginUtils topMostViewController];
 
   [root presentViewController:controller animated:YES completion:nil];

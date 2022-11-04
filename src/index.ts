@@ -6,10 +6,6 @@ import resolveAssetSource from 'react-native/Libraries/Image/resolveAssetSource'
  * @hidden
  */
 const VKLogin: any = NativeModules.VkontakteManager;
-/**
- * @hidden
- */
-const VKShare: any = NativeModules.VkontakteSharing;
 
 /**
  * Response from login method
@@ -39,28 +35,6 @@ export interface VKLoginResult {
    * Time when token expires
    */
   expires_in?: number;
-}
-
-/**
- * Share dialog options
- */
-export interface VKShareOptions {
-  /**
-   * Shared link name
-   */
-  linkText?: string;
-  /**
-   * Shared link URL
-   */
-  linkUrl?: string;
-  /**
-   * Shared text message
-   */
-  description?: string;
-  /**
-   * Shared image, local file resource, i.e. require('path/to/your/image.png')
-   */
-  image?: number;
 }
 
 export const enum VKError {
@@ -128,19 +102,6 @@ export class VK {
    */
   static getAccessToken(): Promise<VKLoginResult | null> {
     return VKLogin.getAccessToken();
-  }
-
-  /**
-   * Opens VK share dialog either via VK mobile app or via WebView (if app is not installed on the device).
-   * Make sure to have correct permissions!
-   * @param {VKShareOptions} options VKShareOptions object
-   * @returns {Promise<number>} Promise that resolves with postId number
-   */
-  static share(options: VKShareOptions): Promise<number> {
-    if (options.image) {
-      options.image = resolveAssetSource(options.image).uri;
-    }
-    return VKShare.share(options);
   }
 
   /**
