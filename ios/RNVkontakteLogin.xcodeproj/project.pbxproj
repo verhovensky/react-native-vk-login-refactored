@@ -13,6 +13,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		39CBCB0A2916561F00AD40C1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 754AB0BA1F16585600B83D3D /* VK-ios-sdk.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = F34670301B8B7C5A003EF74B;
+			remoteInfo = VKSdkFramework;
+		};
 		754AB0C11F16585600B83D3D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 754AB0BA1F16585600B83D3D /* VK-ios-sdk.xcodeproj */;
@@ -40,13 +47,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = F3C58CCD1D213B2C005E94B5;
 			remoteInfo = VKSdkTests;
-		};
-		75A20FFF1F190AA400293F4B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 754AB0BA1F16585600B83D3D /* VK-ios-sdk.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = F34670301B8B7C5A003EF74B;
-			remoteInfo = VKSdkFramework;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -118,7 +118,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				75A210001F190AA400293F4B /* PBXTargetDependency */,
+				39CBCB0B2916561F00AD40C1 /* PBXTargetDependency */,
 			);
 			name = RNVkontakteLogin;
 			productName = RCTDataManager;
@@ -144,6 +144,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				ru,
 			);
@@ -208,10 +209,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		75A210001F190AA400293F4B /* PBXTargetDependency */ = {
+		39CBCB0B2916561F00AD40C1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = VKSdkFramework;
-			targetProxy = 75A20FFF1F190AA400293F4B /* PBXContainerItemProxy */;
+			targetProxy = 39CBCB0A2916561F00AD40C1 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -249,7 +250,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -283,7 +284,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
