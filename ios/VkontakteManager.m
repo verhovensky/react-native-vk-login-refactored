@@ -141,11 +141,11 @@ RCT_REMAP_METHOD(logout, resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
   [vc presentIn:root];
 }
 
-// - (void)vkSdkShouldPresentViewController:(UIViewController *)controller {
-//   UIViewController *root = [RNVkontakteLoginUtils topMostViewController];
+- (void)vkSdkShouldPresentViewController:(UIViewController *)controller {
+  UIViewController *root = [RNVkontakteLoginUtils topMostViewController];
 
-//   [root presentViewController:controller animated:YES completion:nil];
-// }
+  [root presentViewController:controller animated:YES completion:nil];
+}
 
 - (NSDictionary *)serializeAccessToken {
   VKAccessToken *token = [VKSdk accessToken];
