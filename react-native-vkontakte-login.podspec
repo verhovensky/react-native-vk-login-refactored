@@ -15,5 +15,5 @@ Pod::Spec.new do |s|
   s.source_files = "ios/**/*.{h,m}"
 
   s.dependency 'React'
-  s.dependency 'VK-ios-sdk'
+  s.dependency 'VK-ios-sdk', '1.6.2'
 end
