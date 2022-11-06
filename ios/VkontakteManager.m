@@ -101,7 +101,7 @@ RCT_EXPORT_METHOD(login: (NSArray *) scope resolver: (RCTPromiseResolveBlock) re
 };
 
 RCT_EXPORT_METHOD(initialized: (RCTPromiseResolveBlock) resolve rejecter: (RCTPromiseRejectBlock) reject) {
-  resolve(VKSdk.initialized);
+  resolve([NSNumber numberWithBool:[VKSdk initialized]]);
 }
 
 RCT_EXPORT_METHOD(isLoggedIn: (RCTPromiseResolveBlock) resolve rejecter: (RCTPromiseRejectBlock) reject) {
