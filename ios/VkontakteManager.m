@@ -68,12 +68,15 @@ RCT_EXPORT_METHOD(login: (NSArray *) scope resolver: (RCTPromiseResolveBlock) re
 
   self->loginResolver = resolve;
   self->loginRejector = reject;
+
+  VKAuthorizationOptions authorizationOptions = VKAuthorizationOptionsUnlimitedToken | VKAuthorizationOptionsEnableProviders;
+
   [VKSdk wakeUpSession:scope completeBlock:^(VKAuthorizationState state, NSError *error) {
     switch (state) {
       case VKAuthorizationUnknown: {
         if ([VKSdk accessToken]) {
           [VKSdk forceLogout];
-          [VKSdk authorize:scope];
+          [VKSdk authorize:scope options:authorizationOptions];
         } else {
           [self rejectLoginWithError:error];
         }
@@ -85,7 +88,7 @@ RCT_EXPORT_METHOD(login: (NSArray *) scope resolver: (RCTPromiseResolveBlock) re
         break;
       }
       case VKAuthorizationInitialized: {
-        [VKSdk authorize:scope];
+        [VKSdk authorize:scope options:authorizationOptions];
         break;
       }
       case VKAuthorizationError: {
@@ -96,6 +99,10 @@ RCT_EXPORT_METHOD(login: (NSArray *) scope resolver: (RCTPromiseResolveBlock) re
     }
   }];
 };
+
+RCT_EXPORT_METHOD(initialized: (RCTPromiseResolveBlock) resolve rejecter: (RCTPromiseRejectBlock) reject) {
+  resolve([VKSdk initialized]);
+}
 
 RCT_EXPORT_METHOD(isLoggedIn: (RCTPromiseResolveBlock) resolve rejecter: (RCTPromiseRejectBlock) reject) {
   if ([VKSdk initialized]){

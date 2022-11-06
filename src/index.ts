@@ -53,7 +53,7 @@ export const enum VKError {
 
 /**
  * React-native wrapper around vk-ios-sdk and vk-android-sdk
- * Provides login and share functionality
+ * Provides login functionality
  */
 export class VK {
 
@@ -86,6 +86,14 @@ export class VK {
    */
   static logout(): Promise<void> {
     return VKLogin.logout();
+  }
+
+  /**
+   * Checks if user is already initialized
+   * @returns {Promise<boolean>} Promise that resolves with boolean value
+   */
+  static initialized(): Promise<boolean> {
+    return VKLogin.initialized();
   }
 
   /**
