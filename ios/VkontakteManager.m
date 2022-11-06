@@ -1,6 +1,5 @@
 #import "VkontakteManager.h"
 #import "RNVkontakteLoginUtils.h"
-#import <React/RCTLog.h>
 
 #if __has_include(<VKSdkFramework/VKSdkFramework.h>)
 #import <VKSdkFramework/VKSdkFramework.h>
@@ -41,7 +40,6 @@ NSString *const E_VK_REQUEST_NOT_PREPARED = @"E_VK_REQUEST_NOT_PREPARED";
   if (self = [super init]) {
     NSNumber *appId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"VK_APP_ID"];
     if (appId){
-      RCTLogInfo(@"Found appId %@ on startup", appId);
       [self initialize:appId];
     }
   }
@@ -55,8 +53,6 @@ RCT_EXPORT_MODULE();
 }
 
 RCT_EXPORT_METHOD(initialize: (nonnull NSNumber *) appId) {
-  RCTLogInfo(@"Initialize app id %@", appId);
-
   sdk = [VKSdk initializeWithAppId:appId];
   // sdk = [VKSdk initializeWithDelegate:delegate andAppId:appId];
   [sdk registerDelegate:self];
@@ -65,7 +61,6 @@ RCT_EXPORT_METHOD(initialize: (nonnull NSNumber *) appId) {
 }
 
 RCT_EXPORT_METHOD(login: (NSArray *) scope resolver: (RCTPromiseResolveBlock) resolve rejecter: (RCTPromiseRejectBlock) reject) {
-  RCTLogInfo(@"Login with scope %@", scope);
   if (![VKSdk initialized]){
     reject(E_NOT_INITIALIZED, @"VK SDK must be initialized first", nil);
     return;
@@ -76,9 +71,7 @@ RCT_EXPORT_METHOD(login: (NSArray *) scope resolver: (RCTPromiseResolveBlock) re
   [VKSdk wakeUpSession:scope completeBlock:^(VKAuthorizationState state, NSError *error) {
     switch (state) {
       case VKAuthorizationUnknown: {
-        RCTLogInfo(@"Something went wrong with authorization");
         if ([VKSdk accessToken]) {
-          RCTLogInfo(@"Need to authorize again");
           [VKSdk forceLogout];
           [VKSdk authorize:scope];
         } else {
@@ -87,19 +80,17 @@ RCT_EXPORT_METHOD(login: (NSArray *) scope resolver: (RCTPromiseResolveBlock) re
         break;
       }
       case VKAuthorizationAuthorized: {
-        RCTLogInfo(@"User already authorized");
         NSDictionary *loginData = [self serializeAccessToken];
         self->loginResolver(loginData);
         break;
       }
       case VKAuthorizationInitialized: {
-        RCTLogInfo(@"Authorization required");
         [VKSdk authorize:scope];
         break;
       }
       case VKAuthorizationError: {
         NSString *errMessage = [NSString stringWithFormat:@"VK Authorization error: %@", [error localizedDescription]];
-        RCTLogInfo(errMessage);
+
         [self rejectLoginWithError:error];
       }
     }
@@ -131,34 +122,29 @@ RCT_REMAP_METHOD(logout, resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
 
 - (void)vkSdkAccessAuthorizationFinishedWithResult:(VKAuthorizationResult *)result {
   if (result.token) {
-    // NSDictionary *loginData = [self serializeAccessToken];
-    // self->loginResolver(loginData);
-    self->loginRejector(@"Finished", @"Finished", nil);
+    NSDictionary *loginData = [self serializeAccessToken];
+    self->loginResolver(loginData);
   } else if (result.error) {
-    // [self rejectLoginWithError:result.error];
-    self->loginRejector(@"Finished error", @"Finished", nil);
+    [self rejectLoginWithError:result.error];
   }
 }
 
 - (void)vkSdkUserAuthorizationFailed:(VKError *)error {
-  // [self rejectLoginWithVKError:error];
-    self->loginRejector(@"Authorization failed", @"Auth failed", nil);
+  [self rejectLoginWithVKError:error];
 }
 
 - (void)vkSdkNeedCaptchaEnter:(VKError *)captchaError {
-  // VKCaptchaViewController *vc = [VKCaptchaViewController captchaControllerWithError:captchaError];
+  VKCaptchaViewController *vc = [VKCaptchaViewController captchaControllerWithError:captchaError];
 
-  // UIViewController *root = [RNVkontakteLoginUtils topMostViewController];
+  UIViewController *root = [RNVkontakteLoginUtils topMostViewController];
 
-  // [vc presentIn:root];
-  self->loginRejector(@"Captcha error", @"Captcha", nil);
+  [vc presentIn:root];
 }
 
 - (void)vkSdkShouldPresentViewController:(UIViewController *)controller {
-  // UIViewController *root = [RNVkontakteLoginUtils topMostViewController];
+  UIViewController *root = [RNVkontakteLoginUtils topMostViewController];
 
-  // [root presentViewController:controller animated:YES completion:nil];
-  self->loginRejector(@"Present view controller", @"Controller", nil);
+  [root presentViewController:controller animated:YES completion:nil];
 }
 
 - (NSDictionary *)serializeAccessToken {
