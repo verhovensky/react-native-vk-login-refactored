@@ -57,7 +57,8 @@ RCT_EXPORT_MODULE();
 RCT_EXPORT_METHOD(initialize: (nonnull NSNumber *) appId) {
   RCTLogInfo(@"Initialize app id %@", appId);
 
-  sdk = [VKSdk initializeWithAppId:[NSString stringWithFormat:@"%@", appId]];
+  // sdk = [VKSdk initializeWithAppId:[NSString stringWithFormat:@"%@", appId]];
+  sdk = [VKSdk initializeWithDelegate:delegate andAppId:appId];
   [sdk registerDelegate:self];
   [sdk setUiDelegate:self];
   [VKSdk wakeUpSession:@[] completeBlock:^(VKAuthorizationState state, NSError *error) {}];
