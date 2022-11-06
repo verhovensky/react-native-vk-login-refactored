@@ -76,51 +76,31 @@ RCT_EXPORT_METHOD(login: (NSArray *) scope resolver: (RCTPromiseResolveBlock) re
   [VKSdk wakeUpSession:scope completeBlock:^(VKAuthorizationState state, NSError *error) {
     switch (state) {
       case VKAuthorizationUnknown: {
-        self->loginRejector(@"Unknown", @"Authorization unknown", nil);
-        // RCTLogInfo(@"Something went wrong with authorization");
-        // if ([VKSdk accessToken]) {
-        //   RCTLogInfo(@"Need to authorize again");
-        //   [VKSdk forceLogout];
-        //   [VKSdk authorize:scope];
-        // } else {
-        //   [self rejectLoginWithError:error];
-        // }
+        RCTLogInfo(@"Something went wrong with authorization");
+        if ([VKSdk accessToken]) {
+          RCTLogInfo(@"Need to authorize again");
+          [VKSdk forceLogout];
+          [VKSdk authorize:scope];
+        } else {
+          [self rejectLoginWithError:error];
+        }
         break;
       }
       case VKAuthorizationAuthorized: {
-        self->loginRejector(@"Authorized", @"Authorization authorized", nil);
-        // RCTLogInfo(@"User already authorized");
-        // NSDictionary *loginData = [self serializeAccessToken];
-        // self->loginResolver(loginData);
+        RCTLogInfo(@"User already authorized");
+        NSDictionary *loginData = [self serializeAccessToken];
+        self->loginResolver(loginData);
         break;
       }
       case VKAuthorizationInitialized: {
-        self->loginRejector(@"Initialized", @"Authorization initialized", nil);
-        // RCTLogInfo(@"Authorization required");
-        // [VKSdk authorize:scope];
-        break;
-      }
-      case VKAuthorizationPending: {
-        self->loginRejector(@"Pending", @"Authorization Pending", nil);
-        break;
-      }
-      case VKAuthorizationExternal: {
-        self->loginRejector(@"External", @"Authorization External", nil);
-        break;
-      }
-      case VKAuthorizationSafariInApp: {
-        self->loginRejector(@"SafariInApp", @"Authorization SafariInApp", nil);
-        break;
-      }
-      case VKAuthorizationWebview: {
-        self->loginRejector(@"Webview", @"Authorization Webview", nil);
+        RCTLogInfo(@"Authorization required");
+        [VKSdk authorize:scope];
         break;
       }
       case VKAuthorizationError: {
-        self->loginRejector(@"Error", @"Authorization error", nil);
-        // NSString *errMessage = [NSString stringWithFormat:@"VK Authorization error: %@", [error localizedDescription]];
-        // RCTLogInfo(errMessage);
-        // [self rejectLoginWithError:error];
+        NSString *errMessage = [NSString stringWithFormat:@"VK Authorization error: %@", [error localizedDescription]];
+        RCTLogInfo(errMessage);
+        [self rejectLoginWithError:error];
       }
     }
   }];
@@ -141,7 +121,6 @@ RCT_EXPORT_METHOD(getAccessToken: (RCTPromiseResolveBlock) resolve rejecter: (RC
 }
 
 RCT_REMAP_METHOD(logout, resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject){
-  RCTLogInfo(@"Logout");
   if (![VKSdk initialized]){
     reject(E_NOT_INITIALIZED, @"VK SDK must be initialized first", nil);
     return;
@@ -151,35 +130,35 @@ RCT_REMAP_METHOD(logout, resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
 };
 
 - (void)vkSdkAccessAuthorizationFinishedWithResult:(VKAuthorizationResult *)result {
-  RCTLogInfo(@"Authorization result is %@", result);
-  if (result.error && self->loginRejector != nil) {
-    RCTLogInfo(@"Authrization failed with code %ld and message %ld", (long)result.error.code, (long)result.error.vkError.errorCode);
-    [self rejectLoginWithError:result.error];
-  } else if (result.token && self->loginResolver != nil) {
-    NSDictionary *loginData = [self serializeAccessToken];
-    self->loginResolver(loginData);
+  if (result.token) {
+    // NSDictionary *loginData = [self serializeAccessToken];
+    // self->loginResolver(loginData);
+    self->loginRejector(@"Finished", @"Finished", nil);
+  } else if (result.error) {
+    // [self rejectLoginWithError:result.error];
+    self->loginRejector(@"Finished error", @"Finished", nil);
   }
 }
 
 - (void)vkSdkUserAuthorizationFailed:(VKError *)error {
-  RCTLogInfo(@"Authrization failed with code %ld and message %@", (long)error.errorCode, error.errorMessage);
-  [self rejectLoginWithVKError:error];
+  // [self rejectLoginWithVKError:error];
+    self->loginRejector(@"Authorization failed", @"Auth failed", nil);
 }
 
 - (void)vkSdkNeedCaptchaEnter:(VKError *)captchaError {
-  RCTLogInfo(@"VK SDK UI Delegate needs captcha: %@", captchaError);
-  VKCaptchaViewController *vc = [VKCaptchaViewController captchaControllerWithError:captchaError];
+  // VKCaptchaViewController *vc = [VKCaptchaViewController captchaControllerWithError:captchaError];
 
-  UIViewController *root = [RNVkontakteLoginUtils topMostViewController];
+  // UIViewController *root = [RNVkontakteLoginUtils topMostViewController];
 
-  [vc presentIn:root];
+  // [vc presentIn:root];
+  self->loginRejector(@"Captcha error", @"Captcha", nil);
 }
 
 - (void)vkSdkShouldPresentViewController:(UIViewController *)controller {
-  RCTLogInfo(@"Presenting view controller");
-  UIViewController *root = [RNVkontakteLoginUtils topMostViewController];
+  // UIViewController *root = [RNVkontakteLoginUtils topMostViewController];
 
-  [root presentViewController:controller animated:YES completion:nil];
+  // [root presentViewController:controller animated:YES completion:nil];
+  self->loginRejector(@"Present view controller", @"Controller", nil);
 }
 
 - (NSDictionary *)serializeAccessToken {
