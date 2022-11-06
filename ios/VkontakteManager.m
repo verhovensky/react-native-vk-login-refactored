@@ -76,7 +76,7 @@ RCT_EXPORT_METHOD(login: (NSArray *) scope resolver: (RCTPromiseResolveBlock) re
       case VKAuthorizationUnknown: {
         if ([VKSdk accessToken]) {
           [VKSdk forceLogout];
-          [VKSdk authorize:scope options:authorizationOptions];
+          [VKSdk authorize:scope withOptions:authorizationOptions];
         } else {
           [self rejectLoginWithError:error];
         }
@@ -88,7 +88,7 @@ RCT_EXPORT_METHOD(login: (NSArray *) scope resolver: (RCTPromiseResolveBlock) re
         break;
       }
       case VKAuthorizationInitialized: {
-        [VKSdk authorize:scope options:authorizationOptions];
+        [VKSdk authorize:scope withOptions:authorizationOptions];
         break;
       }
       case VKAuthorizationError: {
