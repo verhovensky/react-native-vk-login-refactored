@@ -21,5 +21,6 @@ android {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    implementation 'com.vk:androidsdk:1.+'
+    implementation 'com.vk:android-sdk-core:3.x.x'
+    implementation 'com.vk:android-sdk-api:3.x.x'
 }

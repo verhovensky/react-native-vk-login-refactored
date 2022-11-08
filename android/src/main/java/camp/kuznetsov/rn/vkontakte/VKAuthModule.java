@@ -57,13 +57,13 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
         };
         vkAccessTokenTracker.startTracking();
         int appId = 0;
-        int resId = reactContext.getResources().getIdentifier(VKSdk.SDK_APP_ID, "integer", reactContext.getPackageName());
+        int resId = reactContext.getResources().getIdentifier(VK.SDK_APP_ID, "integer", reactContext.getPackageName());
         try {
             appId = reactContext.getResources().getInteger(resId);
         } catch (Exception e) { }
         Log.d(LOG, "VK AppID found in resources: " + appId);
         if (appId != 0) {
-            VKSdk.customInitialize(reactContext, appId, VK_API_VERSION);
+            VK.customInitialize(reactContext, appId, VK_API_VERSION);
             isInitialized = true;
         }
     }
@@ -85,7 +85,7 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
     public void initialize(final Integer appId){
         Log.d(LOG, "Inititalizing " + appId);
         if (appId != 0) {
-            VKSdk.customInitialize(getReactApplicationContext(), appId, VK_API_VERSION);
+            VK.customInitialize(getReactApplicationContext(), appId, VK_API_VERSION);
             isInitialized = true;
         }
         else {
@@ -112,7 +112,7 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
             scopeArray[i] = scope.getString(i);
         }
 
-        if (VKSdk.isLoggedIn() && VKAccessToken.currentToken() != null) {
+        if (VK.isLoggedIn() && VKAccessToken.currentToken() != null) {
             boolean hasScope = false;
             try {
                 hasScope = VKAccessToken.currentToken().hasScope(scopeArray);
@@ -127,7 +127,7 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
 
         Log.d(LOG, "Requesting scopes (" + scopeSize + ") " + Arrays.toString(scopeArray));
         loginPromise = promise;
-        VKSdk.login(activity, scopeArray);
+        VK.login(activity, scopeArray);
     }
 
     @ReactMethod
@@ -136,14 +136,14 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
             promise.reject(E_NOT_INITIALIZED, M_NOT_INITIALIZED);
             return;
         }
-        VKSdk.logout();
+        VK.logout();
         promise.resolve(null);
     }
 
     @ReactMethod
     public void isLoggedIn(Promise promise) {
         if (isInitialized) {
-            promise.resolve(VKSdk.isLoggedIn());
+            promise.resolve(VK.isLoggedIn());
         }
         else {
             promise.reject(E_NOT_INITIALIZED, M_NOT_INITIALIZED);
@@ -157,7 +157,7 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
 
     @Override
     public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
-        VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
+        VK.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
             @Override
             public void onResult(VKAccessToken res) {
                 if (loginPromise != null) {
