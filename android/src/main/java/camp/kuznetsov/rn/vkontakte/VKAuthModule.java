@@ -165,7 +165,7 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
             public void onError(VKError error) {
                 if (loginPromise != null) {
                     // rejectPromiseWithVKError(loginPromise, error);
-                    promise.reject(E_VK_CANCELED, 'Some error happened');
+                    promise.reject(E_VK_CANCELED, "Some error happened");
                     loginPromise = null;
                 }
             }
