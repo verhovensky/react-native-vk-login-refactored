@@ -8,6 +8,7 @@ import com.facebook.react.bridge.*;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.vk.api.sdk.*;
+import com.vk.api.sdk.auth.VKScope;
 import com.vk.api.sdk.auth.VKAccessToken;
 import com.vk.api.sdk.auth.VKAuthCallback;
 import com.vk.api.sdk.exceptions.VKApiCodes;
@@ -15,8 +16,10 @@ import com.vk.api.sdk.utils.VKUtils;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Collection;
 
 @ReactModule(name="VKAuthModule")
 public class VKAuthModule extends ReactContextBaseJavaModule implements ActivityEventListener {
@@ -141,7 +144,7 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
             @Override
             public void onLoginFailed(int errorCode) {
                 if (loginPromise != null) {
-                    rejectPromiseWithVKError(loginPromise, error);
+                    rejectPromiseWithVKError(loginPromise, errorCode);
                     loginPromise = null;
                 }
             }
@@ -178,11 +181,16 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
 
         WritableMap result = Arguments.createMap();
 
-        result.putString("access_token", token.accessToken);
-        result.putInt("expires_in", token.expiresIn);
-        result.putString("user_id", token.userId);
-        result.putString("secret", token.secret);
-        result.putString("email", token.email);
+        // result.putString("access_token", token.accessToken);
+        // result.putInt("expires_in", token.expiresIn);
+        // result.putString("user_id", token.userId);
+        // result.putString("secret", token.secret);
+        // result.putString("email", token.email);
+        result.putString("access_token", "1");
+        result.putInt("expires_in", 0);
+        result.putString("user_id", "123");
+        result.putString("secret", "123");
+        result.putString("email", "test@test.com");
 
         return result;
     }
