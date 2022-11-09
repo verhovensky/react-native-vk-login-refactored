@@ -21,12 +21,6 @@ import java.util.Map;
 
 @ReactModule(name="VKAuthModule")
 public class VKAuthModule extends ReactContextBaseJavaModule implements ActivityEventListener {
-    public static final String NAME = "VKAuthModule";
-
-    private static final String LOG = "VKAuthModule";
-
-    private static final String VK_API_VERSION = "5.52";
-
     private static final String E_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST";
     private static final String E_NOT_INITIALIZED = "E_NOT_INITIALIZED";
     private static final String E_FINGERPRINTS_ERROR = "E_FINGERPRINTS_ERROR";
@@ -139,7 +133,7 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
 
     @Override
     public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
-        VK.onActivityResult(requestCode, resultCode, data, new VKAuthCallback<VKAccessToken>() {
+        VK.onActivityResult(requestCode, resultCode, data, new VKAuthCallback() {
             @Override
             public void onLogin(VKAccessToken res) {
                 if (loginPromise != null) {
@@ -204,12 +198,12 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
 
         WritableMap result = Arguments.createMap();
 
-        result.putString(VKAccessToken.COMPANION.KEYS.ACCESS_TOKEN, token.accessToken);
-        result.putInt(VKAccessToken.COMPANION.KEYS.EXPIRES_IN, token.expiresIn);
-        result.putString(VKAccessToken.COMPANION.KEYS.USER_ID, token.userId);
-        result.putBoolean(VKAccessToken.COMPANION.KEYS.HTTPS_REQUIRED, token.httpsRequired);
-        result.putString(VKAccessToken.COMPANION.KEYS.SECRET, token.secret);
-        result.putString(VKAccessToken.COMPANION.KEYS.EMAIL, token.email);
+        result.putString(VKAccessToken.KEYS.ACCESS_TOKEN, token.accessToken);
+        result.putInt(VKAccessToken.KEYS.EXPIRES_IN, token.expiresIn);
+        result.putString(VKAccessToken.KEYS.USER_ID, token.userId);
+        result.putBoolean(VKAccessToken.KEYS.HTTPS_REQUIRED, token.httpsRequired);
+        result.putString(VKAccessToken.KEYS.SECRET, token.secret);
+        result.putString(VKAccessToken.KEYS.EMAIL, token.email);
 
         return result;
     }
