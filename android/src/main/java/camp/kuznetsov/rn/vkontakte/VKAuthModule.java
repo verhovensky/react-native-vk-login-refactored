@@ -9,6 +9,8 @@ import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.vk.api.sdk.*;
 import com.vk.api.sdk.auth.VKAccessToken;
+import com.vk.api.sdk.auth.VKAuthCallback;
+import com.vk.api.sdk.exceptions.VKAuthException;
 import com.vk.api.sdk.exceptions.VKApiCodes;
 import com.vk.api.sdk.utils.VKUtils;
 
@@ -47,14 +49,8 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
         super(reactContext);
         reactContext.addActivityEventListener(this);
 
-        int appId = 0;
-        try {
-            appId = VK.getAppIdFromResources(reactContext);
-        } catch (Exception e) { }
-        if (appId != 0) {
-            VK.initialize(reactContext, appId, VK_API_VERSION);
-            isInitialized = true;
-        }
+        VK.initialize(reactContext);
+        isInitialized = true;
     }
 
     @Override
@@ -107,20 +103,11 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
             scopeArray[i] = scope.getString(i);
         }
 
-        if (VK.isLoggedIn() && VKAccessToken.currentToken() != null) {
-            boolean hasScope = false;
-            try {
-                hasScope = VKAccessToken.currentToken().hasScope(scopeArray);
-            } catch (Exception e) { }
-
-            if (hasScope) {
-                Log.d(LOG, "Already logged in with all requested scopes");
-                promise.resolve(serializeAccessToken(VKAccessToken.currentToken()));
-                return;
-            }
+        if (VK.isLoggedIn()) {
+            // promise.resolve(serializeAccessToken(VKAccessToken.currentToken()));
+            return;
         }
 
-        Log.d(LOG, "Requesting scopes (" + scopeSize + ") " + Arrays.toString(scopeArray));
         loginPromise = promise;
         VK.login(activity, scopeArray);
     }
@@ -147,14 +134,14 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
 
     @ReactMethod
     public void getAccessToken(Promise promise) {
-        promise.resolve(serializeAccessToken(VKAccessToken.get()));
+        // promise.resolve(serializeAccessToken(VKAccessToken.get()));
     }
 
     @Override
     public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
         VK.onActivityResult(requestCode, resultCode, data, new VKAuthCallback<VKAccessToken>() {
             @Override
-            public void onResult(VKAccessToken res) {
+            public void onLogin(VKAccessToken res) {
                 if (loginPromise != null) {
                     loginPromise.resolve(serializeAccessToken(res));
                     loginPromise = null;
@@ -162,7 +149,7 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
             }
 
             @Override
-            public void onError(VKError error) {
+            public void onLoginFailed(VKAuthException authException) {
                 if (loginPromise != null) {
                     // rejectPromiseWithVKError(loginPromise, error);
                     promise.reject(E_VK_CANCELED, "Some error happened");
@@ -217,12 +204,12 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
 
         WritableMap result = Arguments.createMap();
 
-        result.putString(VKAccessToken.ACCESS_TOKEN, token.accessToken);
-        result.putInt(VKAccessToken.EXPIRES_IN, token.expiresIn);
-        result.putString(VKAccessToken.USER_ID, token.userId);
-        result.putBoolean(VKAccessToken.HTTPS_REQUIRED, token.httpsRequired);
-        result.putString(VKAccessToken.SECRET, token.secret);
-        result.putString(VKAccessToken.EMAIL, token.email);
+        result.putString(VKAccessToken.COMPANION.KEYS.ACCESS_TOKEN, token.accessToken);
+        result.putInt(VKAccessToken.COMPANION.KEYS.EXPIRES_IN, token.expiresIn);
+        result.putString(VKAccessToken.COMPANION.KEYS.USER_ID, token.userId);
+        result.putBoolean(VKAccessToken.COMPANION.KEYS.HTTPS_REQUIRED, token.httpsRequired);
+        result.putString(VKAccessToken.COMPANION.KEYS.SECRET, token.secret);
+        result.putString(VKAccessToken.COMPANION.KEYS.EMAIL, token.email);
 
         return result;
     }
