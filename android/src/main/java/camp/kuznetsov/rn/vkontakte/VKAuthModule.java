@@ -33,12 +33,8 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
     private static final String E_FINGERPRINTS_ERROR = "E_FINGERPRINTS_ERROR";
     private static final String TOKEN_INVALID = "TOKEN_INVALID";
     private static final String M_NOT_INITIALIZED = "VK SDK must be initialized first";
-    private static final String E_VK_UNKNOWN = "E_VK_UNKNOWN";
-    private static final String	E_VK_API_ERROR = "E_VK_API_ERROR";
     private static final String E_VK_CANCELED = "E_VK_CANCELED";
-    private static final String E_VK_JSON_FAILED = "E_VK_JSON_FAILED";
-    private static final String E_VK_REQUEST_HTTP_FAILED = "E_VK_REQUEST_HTTP_FAILED";
-    private static final String E_VK_REQUEST_NOT_PREPARED = "E_VK_REQUEST_NOT_PREPARED";
+    private static final String E_VK_UNKNOWN = "E_VK_UNKNOWN";
 
     private Promise loginPromise;
     private boolean isInitialized = false;
@@ -163,10 +159,10 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
     private void rejectPromiseWithVKError(Promise promise, int errorCode) {
         switch (errorCode) {
             case VKAuthCallback.AUTH_CANCELED:
-                promise.reject(E_VK_CANCELED, 'User canceled');
+                promise.reject(E_VK_CANCELED, "User canceled");
                 break;
             default:
-                promise.reject(E_VK_UNKNOWN, 'Unknown error');
+                promise.reject(E_VK_UNKNOWN, "Unknown error");
                 break;
         }
     }
@@ -190,11 +186,11 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
 
         WritableMap result = Arguments.createMap();
 
-        result.putString(KEYS.ACCESS_TOKEN, token.accessToken);
-        result.putInt(KEYS.EXPIRES_IN, token.expiresIn);
-        result.putString(KEYS.USER_ID, token.userId);
-        result.putString(KEYS.SECRET, token.secret);
-        result.putString(KEYS.EMAIL, token.email);
+        result.putString("access_token", token.accessToken);
+        result.putInt("expires_in", token.expiresIn);
+        result.putString("user_id", token.userId);
+        result.putString("secret", token.secret);
+        result.putString("email", token.email);
 
         return result;
     }
