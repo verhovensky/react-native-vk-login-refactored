@@ -7,9 +7,9 @@ import android.util.Log;
 import com.facebook.react.bridge.*;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
-import com.vk.sdk.*;
-import com.vk.sdk.api.VKError;
-import com.vk.sdk.util.VKUtil;
+import com.vk.api.sdk.*;
+import com.vk.api.sdk.exceptions.VKApiCodes;
+import com.vk.api.sdk.utils.VKUtils;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -83,7 +83,6 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
 
     @ReactMethod
     public void initialize(final Integer appId){
-        Log.d(LOG, "Inititalizing " + appId);
         if (appId != 0) {
             VK.customInitialize(getReactApplicationContext(), appId, VK_API_VERSION);
             isInitialized = true;
@@ -91,6 +90,11 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
         else {
             throw new JSApplicationIllegalArgumentException("VK App Id cannot be 0");
         }
+    }
+    
+    @ReactMethod
+    public boolean initialized(){
+        return isInitialized;
     }
 
     @ReactMethod
