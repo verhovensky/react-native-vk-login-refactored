@@ -10,7 +10,6 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.vk.api.sdk.*;
 import com.vk.api.sdk.auth.VKAccessToken;
 import com.vk.api.sdk.auth.VKAuthCallback;
-import com.vk.api.sdk.exceptions.VKAuthException;
 import com.vk.api.sdk.exceptions.VKApiCodes;
 import com.vk.api.sdk.utils.VKUtils;
 
@@ -18,6 +17,14 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+enum class KEYS {
+    ACCESS_TOKEN("access_token"),
+    EXPIRES_IN("expires_in"),
+    USER_ID("user_id"),
+    SECRET("secret"),
+    EMAIL("email"),
+}
 
 @ReactModule(name="VKAuthModule")
 public class VKAuthModule extends ReactContextBaseJavaModule implements ActivityEventListener {
@@ -92,9 +99,11 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
         }
 
         int scopeSize = scope == null ? 0 : scope.size();
-        String[] scopeArray = new String[scopeSize];
+        // String[] scopeArray = new String[scopeSize];
+
+        Collection<VKScope> scopeArray = new HashSet<>();
         for (int i = 0; i < scopeSize; i++) {
-            scopeArray[i] = scope.getString(i);
+            scopeArray.add(scope.getString(i));
         }
 
         if (VK.isLoggedIn()) {
@@ -142,40 +151,25 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
             }
 
             @Override
-            public void onLoginFailed(VKAuthException authException) {
+            public void onLoginFailed(int errorCode) {
                 if (loginPromise != null) {
-                    // rejectPromiseWithVKError(loginPromise, error);
-                    loginPromise.reject(E_VK_CANCELED, "Some error happened");
+                    rejectPromiseWithVKError(loginPromise, error);
                     loginPromise = null;
                 }
             }
-        }, false);
+        });
     }
 
-    // private void rejectPromiseWithVKError(Promise promise, VKError error) {
-    //     String errorCode = E_VK_UNKNOWN;
-    //     switch (error.errorCode) {
-    //         case VKError.VK_API_ERROR:
-    //             errorCode = E_VK_API_ERROR;;
-    //             break;
-    //         case VKError.VK_CANCELED:
-    //             errorCode = E_VK_CANCELED;;
-    //             break;
-    //         case VKError.VK_JSON_FAILED:
-    //             errorCode = E_VK_JSON_FAILED;;
-    //             break;
-    //         case VKError.VK_REQUEST_HTTP_FAILED:
-    //             errorCode = E_VK_REQUEST_HTTP_FAILED;;
-    //             break;
-    //         case VKError.VK_REQUEST_NOT_PREPARED:
-    //             errorCode = E_VK_REQUEST_NOT_PREPARED;;
-    //             break;
-    //         default:
-    //             errorCode = E_VK_UNKNOWN;;
-    //             break;
-    //     }
-    //     promise.reject(errorCode, error.toString());
-    // }
+    private void rejectPromiseWithVKError(Promise promise, int errorCode) {
+        switch (errorCode) {
+            case VKAuthCallback.AUTH_CANCELED:
+                promise.reject(E_VK_CANCELED, 'User canceled');
+                break;
+            default:
+                promise.reject(E_VK_UNKNOWN, 'Unknown error');
+                break;
+        }
+    }
 
     @ReactMethod
     public void getCertificateFingerprint(Promise promise) {
@@ -196,12 +190,11 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
 
         WritableMap result = Arguments.createMap();
 
-        result.putString(VKAccessToken.KEYS.ACCESS_TOKEN, token.accessToken);
-        result.putInt(VKAccessToken.KEYS.EXPIRES_IN, token.expiresIn);
-        result.putString(VKAccessToken.KEYS.USER_ID, token.userId);
-        result.putBoolean(VKAccessToken.KEYS.HTTPS_REQUIRED, token.httpsRequired);
-        result.putString(VKAccessToken.KEYS.SECRET, token.secret);
-        result.putString(VKAccessToken.KEYS.EMAIL, token.email);
+        result.putString(KEYS.ACCESS_TOKEN, token.accessToken);
+        result.putInt(KEYS.EXPIRES_IN, token.expiresIn);
+        result.putString(KEYS.USER_ID, token.userId);
+        result.putString(KEYS.SECRET, token.secret);
+        result.putString(KEYS.EMAIL, token.email);
 
         return result;
     }
