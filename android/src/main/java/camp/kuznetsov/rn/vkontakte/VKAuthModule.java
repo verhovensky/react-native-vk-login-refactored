@@ -84,7 +84,7 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
             promise.reject(E_NOT_INITIALIZED, M_NOT_INITIALIZED);
             return;
         }
-        Activity activity = getActivity();
+        Activity activity = getCurrentActivity();
 
         if (activity == null) {
             promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
@@ -98,8 +98,7 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
         }
 
         if (VK.isLoggedIn()) {
-            // promise.resolve(serializeAccessToken(VKAccessToken.currentToken()));
-            return;
+            VK.logout();
         }
 
         loginPromise = promise;
