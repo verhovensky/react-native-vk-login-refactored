@@ -18,14 +18,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-enum class KEYS {
-    ACCESS_TOKEN("access_token"),
-    EXPIRES_IN("expires_in"),
-    USER_ID("user_id"),
-    SECRET("secret"),
-    EMAIL("email"),
-}
-
 @ReactModule(name="VKAuthModule")
 public class VKAuthModule extends ReactContextBaseJavaModule implements ActivityEventListener {
     private static final String E_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST";
