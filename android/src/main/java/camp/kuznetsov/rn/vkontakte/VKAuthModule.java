@@ -84,7 +84,7 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
             promise.reject(E_NOT_INITIALIZED, M_NOT_INITIALIZED);
             return;
         }
-        Activity activity = getCurrentActivity();
+        Activity activity = getActivity();
 
         if (activity == null) {
             promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
@@ -146,7 +146,7 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
             public void onLoginFailed(VKAuthException authException) {
                 if (loginPromise != null) {
                     // rejectPromiseWithVKError(loginPromise, error);
-                    promise.reject(E_VK_CANCELED, "Some error happened");
+                    loginPromise.reject(E_VK_CANCELED, "Some error happened");
                     loginPromise = null;
                 }
             }
@@ -188,7 +188,6 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
         } catch (Exception e) {
             promise.reject(E_FINGERPRINTS_ERROR, e.toString());
         }
-
     }
 
     private @Nullable WritableMap serializeAccessToken(@Nullable VKAccessToken token){
