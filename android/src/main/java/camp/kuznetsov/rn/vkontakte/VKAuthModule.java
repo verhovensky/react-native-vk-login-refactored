@@ -8,6 +8,7 @@ import com.facebook.react.bridge.*;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.vk.api.sdk.*;
+import com.vk.api.sdk.auth.VKAccessToken;
 import com.vk.api.sdk.exceptions.VKApiCodes;
 import com.vk.api.sdk.utils.VKUtils;
 
@@ -45,25 +46,13 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
     public VKAuthModule(final ReactApplicationContext reactContext) {
         super(reactContext);
         reactContext.addActivityEventListener(this);
-        VKAccessTokenTracker vkAccessTokenTracker = new VKAccessTokenTracker() {
-            @Override
-            public void onVKAccessTokenChanged(VKAccessToken oldToken, VKAccessToken newToken) {
-                if (newToken == null) {
-                    reactContext
-                            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                            .emit(TOKEN_INVALID, null);
-                }
-            }
-        };
-        vkAccessTokenTracker.startTracking();
+
         int appId = 0;
-        int resId = reactContext.getResources().getIdentifier(VK.SDK_APP_ID, "integer", reactContext.getPackageName());
         try {
-            appId = reactContext.getResources().getInteger(resId);
+            appId = VK.getAppIdFromResources(reactContext);
         } catch (Exception e) { }
-        Log.d(LOG, "VK AppID found in resources: " + appId);
         if (appId != 0) {
-            VK.customInitialize(reactContext, appId, VK_API_VERSION);
+            VK.initialize(reactContext, appId, VK_API_VERSION);
             isInitialized = true;
         }
     }
@@ -83,18 +72,20 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
 
     @ReactMethod
     public void initialize(final Integer appId){
-        if (appId != 0) {
-            VK.customInitialize(getReactApplicationContext(), appId, VK_API_VERSION);
-            isInitialized = true;
-        }
-        else {
-            throw new JSApplicationIllegalArgumentException("VK App Id cannot be 0");
-        }
+        // not working due to VK API
+        
+        // if (appId != 0) {
+        //     VK.initialize(getReactApplicationContext());
+        //     isInitialized = true;
+        // }
+        // else {
+        //     throw new JSApplicationIllegalArgumentException("VK App Id cannot be 0");
+        // }
     }
     
     @ReactMethod
-    public boolean initialized(){
-        return isInitialized;
+    public void initialized(final Promise promise){
+        promise.resolve(isInitialized);
     }
 
     @ReactMethod
@@ -156,12 +147,12 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
 
     @ReactMethod
     public void getAccessToken(Promise promise) {
-        promise.resolve(serializeAccessToken(VKAccessToken.currentToken()));
+        promise.resolve(serializeAccessToken(VKAccessToken.get()));
     }
 
     @Override
     public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
-        VK.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
+        VK.onActivityResult(requestCode, resultCode, data, new VKAuthCallback<VKAccessToken>() {
             @Override
             public void onResult(VKAccessToken res) {
                 if (loginPromise != null) {
@@ -173,43 +164,44 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
             @Override
             public void onError(VKError error) {
                 if (loginPromise != null) {
-                    rejectPromiseWithVKError(loginPromise, error);
+                    // rejectPromiseWithVKError(loginPromise, error);
+                    promise.reject(E_VK_CANCELED, 'Some error happened');
                     loginPromise = null;
                 }
             }
-        });
+        }, false);
     }
 
-    private void rejectPromiseWithVKError(Promise promise, VKError error) {
-        String errorCode = E_VK_UNKNOWN;
-        switch (error.errorCode) {
-            case VKError.VK_API_ERROR:
-                errorCode = E_VK_API_ERROR;;
-                break;
-            case VKError.VK_CANCELED:
-                errorCode = E_VK_CANCELED;;
-                break;
-            case VKError.VK_JSON_FAILED:
-                errorCode = E_VK_JSON_FAILED;;
-                break;
-            case VKError.VK_REQUEST_HTTP_FAILED:
-                errorCode = E_VK_REQUEST_HTTP_FAILED;;
-                break;
-            case VKError.VK_REQUEST_NOT_PREPARED:
-                errorCode = E_VK_REQUEST_NOT_PREPARED;;
-                break;
-            default:
-                errorCode = E_VK_UNKNOWN;;
-                break;
-        }
-        promise.reject(errorCode, error.toString());
-    }
+    // private void rejectPromiseWithVKError(Promise promise, VKError error) {
+    //     String errorCode = E_VK_UNKNOWN;
+    //     switch (error.errorCode) {
+    //         case VKError.VK_API_ERROR:
+    //             errorCode = E_VK_API_ERROR;;
+    //             break;
+    //         case VKError.VK_CANCELED:
+    //             errorCode = E_VK_CANCELED;;
+    //             break;
+    //         case VKError.VK_JSON_FAILED:
+    //             errorCode = E_VK_JSON_FAILED;;
+    //             break;
+    //         case VKError.VK_REQUEST_HTTP_FAILED:
+    //             errorCode = E_VK_REQUEST_HTTP_FAILED;;
+    //             break;
+    //         case VKError.VK_REQUEST_NOT_PREPARED:
+    //             errorCode = E_VK_REQUEST_NOT_PREPARED;;
+    //             break;
+    //         default:
+    //             errorCode = E_VK_UNKNOWN;;
+    //             break;
+    //     }
+    //     promise.reject(errorCode, error.toString());
+    // }
 
     @ReactMethod
     public void getCertificateFingerprint(Promise promise) {
         try {
             ReactApplicationContext reactContext = getReactApplicationContext();
-            String[] fingerprints = VKUtil.getCertificateFingerprint(reactContext, reactContext.getPackageName());
+            String[] fingerprints = VKUtils.getCertificateFingerprint(reactContext, reactContext.getPackageName());
             WritableArray result = Arguments.fromArray(fingerprints);
             promise.resolve(result);
         } catch (Exception e) {
