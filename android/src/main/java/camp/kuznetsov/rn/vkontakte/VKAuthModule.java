@@ -146,7 +146,15 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
             @Override
             public void onLogin(VKAccessToken res) {
                 if (loginPromise != null) {
-                    loginPromise.resolve(serializeAccessToken(res));
+                    WritableMap result = Arguments.createMap();
+
+                    result.putString("access_token", res.accessToken);
+                    result.putInt("expires_in", res.expiresIn);
+                    result.putString("user_id", res.userId);
+                    result.putString("secret", res.secret);
+                    result.putString("email", res.email);
+
+                    loginPromise.resolve(result);
                     loginPromise = null;
                 }
             }
@@ -184,19 +192,19 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
         }
     }
 
-    private @Nullable WritableMap serializeAccessToken(@Nullable VKAccessToken token){
-        if (token == null) {
-            return null;
-        }
+    // private @Nullable WritableMap serializeAccessToken(@Nullable VKAccessToken token){
+    //     if (token == null) {
+    //         return null;
+    //     }
 
-        WritableMap result = Arguments.createMap();
+    //     WritableMap result = Arguments.createMap();
 
-        result.putString("access_token", token.accessToken());
-        result.putInt("expires_in", token.expiresIn());
-        result.putString("user_id", token.userId());
-        result.putString("secret", token.secret());
-        result.putString("email", token.email());
+    //     result.putString("access_token", token.accessToken);
+    //     result.putInt("expires_in", token.expiresIn);
+    //     result.putString("user_id", token.userId);
+    //     result.putString("secret", token.secret);
+    //     result.putString("email", token.email);
 
-        return result;
-    }
+    //     return result;
+    // }
 }
