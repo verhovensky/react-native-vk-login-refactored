@@ -77,7 +77,7 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
     }
 
     @ReactMethod
-    public void login(final ReadableArray scope, final Promise promise) {
+    public void login(final ReadableArray scopes, final Promise promise) {
         if (!isInitialized) {
             promise.reject(E_NOT_INITIALIZED, M_NOT_INITIALIZED);
             return;
@@ -89,17 +89,24 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
             return;
         }
 
-        int scopeSize = scope == null ? 0 : scope.size();
-        // String[] scopeArray = new String[scopeSize];
-
-        Collection<VKScope> scopeArray = new HashSet<>();
-        // for (int i = 0; i < scopeSize; i++) {
-        //     scopeArray.add(scope.getString(i));
-        // }
-        scopeArray.add(VKScope.WALL);
-
         if (VK.isLoggedIn()) {
             VK.logout();
+        }
+
+        Collection<VKScope> scopeArray = new HashSet<>();
+
+        int scopesSize = scopes == null ? 0 : scopes.size();
+        if(scopesSize != 0){
+            for (VKScope vs : VKScope.values()) {
+                for (int i = 0; i < scopesSize; i++) {
+                    String vkScope = vs.toString().toLowerCase();
+                    String scope = scopes.getString(i);
+                    if(vkScope == scope){
+                        scopeArray.add(vs);
+                        break;
+                    }
+                }
+            }
         }
 
         loginPromise = promise;
@@ -137,7 +144,8 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
             @Override
             public void onLogin(VKAccessToken res) {
                 if (loginPromise != null) {
-                    loginPromise.resolve(serializeAccessToken(res));
+                    // loginPromise.resolve(serializeAccessToken(res));
+                    loginPromise.resolve(res);
                     loginPromise = null;
                 }
             }
