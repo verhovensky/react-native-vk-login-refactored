@@ -1,6 +1,5 @@
 package camp.kuznetsov.rn.vkontakte;
 
-
 import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
@@ -101,7 +100,7 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
                 for (int i = 0; i < scopesSize; i++) {
                     String vkScope = vs.toString().toLowerCase();
                     String scope = scopes.getString(i);
-                    if(vkScope == scope){
+                    if(vkScope.equals(scope)){
                         scopeArray.add(vs);
                         break;
                     }
@@ -135,7 +134,10 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
 
     @ReactMethod
     public void getAccessToken(Promise promise) {
+        // not working due to new VK API
         // promise.resolve(serializeAccessToken(VKAccessToken.get()));
+
+        promise.resolve(null);
     }
 
     @Override
@@ -144,8 +146,7 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
             @Override
             public void onLogin(VKAccessToken res) {
                 if (loginPromise != null) {
-                    // loginPromise.resolve(serializeAccessToken(res));
-                    loginPromise.resolve(res);
+                    loginPromise.resolve(serializeAccessToken(res));
                     loginPromise = null;
                 }
             }
@@ -190,16 +191,11 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
 
         WritableMap result = Arguments.createMap();
 
-        // result.putString("access_token", token.accessToken);
-        // result.putInt("expires_in", token.expiresIn);
-        // result.putString("user_id", token.userId);
-        // result.putString("secret", token.secret);
-        // result.putString("email", token.email);
-        result.putString("access_token", "1");
-        result.putInt("expires_in", 0);
-        result.putString("user_id", "123");
-        result.putString("secret", "123");
-        result.putString("email", "test@test.com");
+        result.putString("access_token", token.accessToken());
+        result.putInt("expires_in", token.expiresIn());
+        result.putString("user_id", token.userId());
+        result.putString("secret", token.secret());
+        result.putString("email", token.email());
 
         return result;
     }
