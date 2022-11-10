@@ -148,8 +148,8 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
                 if (loginPromise != null) {
                     WritableMap result = Arguments.createMap();
 
-                    result.putInt("access_token", res.getAccessToken());
-                    result.putString("user_id", res.getUserId());
+                    result.putString("access_token", res.getAccessToken());
+                    result.putInt("user_id", res.getUserId());
                     result.putInt("expires_in", 0);
                     result.putString("secret", res.getSecret());
                     result.putString("email", res.getEmail());
