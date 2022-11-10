@@ -60,7 +60,7 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
 
     @ReactMethod
     public void initialize(final Integer appId){
-        // not working due to VK API
+        // not working due to new VK API
         
         // if (appId != 0) {
         //     VK.initialize(getReactApplicationContext());
@@ -93,9 +93,10 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
         // String[] scopeArray = new String[scopeSize];
 
         Collection<VKScope> scopeArray = new HashSet<>();
-        for (int i = 0; i < scopeSize; i++) {
-            scopeArray.add(scope.getString(i));
-        }
+        // for (int i = 0; i < scopeSize; i++) {
+        //     scopeArray.add(scope.getString(i));
+        // }
+        scopeArray.add(VKScope.WALL);
 
         if (VK.isLoggedIn()) {
             VK.logout();
