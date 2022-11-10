@@ -144,15 +144,15 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
     public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
         VK.onActivityResult(requestCode, resultCode, data, new VKAuthCallback() {
             @Override
-            public void onLogin(VKAccessToken res) {
+            public void onLogin(Object res) {
                 if (loginPromise != null) {
                     WritableMap result = Arguments.createMap();
 
                     result.putString("access_token", res.accessToken);
-                    result.putInt("expires_in", res.expiresIn);
                     result.putString("user_id", res.userId);
-                    result.putString("secret", res.secret);
-                    result.putString("email", res.email);
+                    result.putInt("expires_in", 0);
+                    // result.putString("secret", res.secret);
+                    // result.putString("email", res.email);
 
                     loginPromise.resolve(result);
                     loginPromise = null;
