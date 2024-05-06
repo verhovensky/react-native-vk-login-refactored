@@ -94,6 +94,9 @@ public class VKAuthModule extends ReactContextBaseJavaModule implements Activity
 
         Collection<VKScope> scopeArray = new HashSet<>();
 
+        // Add the "offline" VKScope directly to the scopeArray Set
+        scopeArray.add(VKScope.OFFLINE);
+
         int scopesSize = scopes == null ? 0 : scopes.size();
         if(scopesSize != 0){
             for (VKScope vs : VKScope.values()) {
