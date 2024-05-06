@@ -17,13 +17,6 @@
   "engines": {
     "node": ">=8"
   },
-  "scripts": {
-    "prebuild": "rimraf ./lib/* ./bin/*",
-    "build": "tsc -p tsconfig.lib.json && tsc -p tsconfig.bin.json && rollup -c && rimraf ./bin/modules",
-    "prepare": "yarn build",
-    "lint": "tslint --project tsconfig.lib.json && tslint --project tsconfig.bin.json",
-    "semantic-release": "semantic-release"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/doomsower/react-native-vkontakte-login.git"
